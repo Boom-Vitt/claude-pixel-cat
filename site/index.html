@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Opus 4.8 — The most capable Claude model</title>
+<meta name="description" content="Opus 4.8 — frontier reasoning, agentic fluency, and craft you can feel. A concept showcase." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..800&family=Instrument+Sans:ital,wght@0,400..600;1,400..500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0b0a09;
+    --bg-2:#100d0b;
+    --surface:#16110d;
+    --surface-2:#1e1813;
+    --ink:#f5efe6;
+    --ink-dim:#cdc3b5;
+    --muted:#9c9183;
+    --line:rgba(245,239,230,.10);
+    --line-soft:rgba(245,239,230,.06);
+    --amber:#ff9d4d;
+    --amber-hi:#ffce8f;
+    --ember:#e8742e;
+    --coal:#b8451f;
+    --glow: rgba(255,157,77,.22);
+    --maxw:1160px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    letter-spacing:-.005em;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ── atmosphere ──────────────────────────────── */
+  .field{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;mix-blend-mode:screen;will-change:transform}
+  .orb.a{width:54vw;height:54vw;left:-12vw;top:-18vw;
+    background:radial-gradient(circle at 50% 50%, #ff9d4d 0%, rgba(232,116,46,.55) 38%, transparent 68%);
+    animation:floatA 26s var(--ease) infinite alternate}
+  .orb.b{width:46vw;height:46vw;right:-14vw;top:8vh;
+    background:radial-gradient(circle at 50% 50%, #b8451f 0%, rgba(184,69,31,.5) 42%, transparent 70%);
+    animation:floatB 32s var(--ease) infinite alternate}
+  .orb.c{width:40vw;height:40vw;left:30vw;bottom:-22vw;
+    background:radial-gradient(circle at 50% 50%, #ffce8f 0%, rgba(255,206,143,.32) 44%, transparent 72%);
+    animation:floatC 38s var(--ease) infinite alternate}
+  @keyframes floatA{from{transform:translate(0,0) scale(1)}to{transform:translate(8vw,10vh) scale(1.15)}}
+  @keyframes floatB{from{transform:translate(0,0) scale(1)}to{transform:translate(-7vw,8vh) scale(1.2)}}
+  @keyframes floatC{from{transform:translate(0,0) scale(1)}to{transform:translate(6vw,-9vh) scale(1.1)}}
+
+  /* grain */
+  .grain{position:fixed;inset:-200%;z-index:1;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain 6s steps(4) infinite}
+  @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-2%)}100%{transform:translate(3%,1%)}}
+
+  /* cursor glow */
+  .cursor-glow{position:fixed;z-index:2;top:0;left:0;width:560px;height:560px;border-radius:50%;
+    transform:translate(-50%,-50%);pointer-events:none;mix-blend-mode:screen;opacity:0;transition:opacity .5s ease;
+    background:radial-gradient(circle,var(--glow) 0%,transparent 60%)}
+
+  /* vignette to seat content */
+  .veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% -10%, transparent 30%, rgba(11,10,9,.55) 78%, var(--bg) 100%)}
+
+  /* ── shell ───────────────────────────────────── */
+  .wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  /* nav */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px) saturate(140%);
+    background:linear-gradient(to bottom, rgba(11,10,9,.74), rgba(11,10,9,.32));
+    border-bottom:1px solid var(--line-soft)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;letter-spacing:-.02em;font-size:16px}
+  .mark{width:22px;height:22px;flex:0 0 auto;animation:spin 26s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{color:var(--ink-dim);text-decoration:none;font-size:14.5px;letter-spacing:.01em;position:relative;transition:color .25s}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1px;background:var(--amber);transition:width .3s var(--ease)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a:hover::after{width:100%}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:inherit;font-size:14.5px;font-weight:600;
+    letter-spacing:-.01em;cursor:pointer;border:none;border-radius:100px;padding:11px 20px;text-decoration:none;
+    transition:transform .25s var(--ease), box-shadow .25s, filter .25s}
+  .btn-primary{color:#1a0e05;background:linear-gradient(180deg,#ffce8f,#ff9d4d 60%,#ef842f);
+    box-shadow:0 0 0 1px rgba(255,206,143,.35), 0 12px 34px -12px var(--amber)}
+  .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 0 0 1px rgba(255,206,143,.5),0 18px 44px -12px var(--amber)}
+  .btn-ghost{color:var(--ink);background:transparent;border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:rgba(255,157,77,.5);background:rgba(255,157,77,.06);transform:translateY(-2px)}
+  .btn .arr{transition:transform .25s var(--ease)}
+  .btn:hover .arr{transform:translateX(4px)}
+
+  /* hero */
+  .hero{padding:clamp(72px,13vh,150px) 0 70px;text-align:center}
+  .pill{display:inline-flex;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace;font-size:12px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim);
+    border:1px solid var(--line);border-radius:100px;padding:7px 15px 7px 12px;background:rgba(245,239,230,.03)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 0 rgba(255,157,77,.6);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,157,77,.55)}70%{box-shadow:0 0 0 10px rgba(255,157,77,0)}100%{box-shadow:0 0 0 0 rgba(255,157,77,0)}}
+
+  h1.display{
+    font-family:"Fraunces",serif;font-optical-sizing:auto;
+    font-weight:600;font-size:clamp(64px,15vw,200px);line-height:.86;letter-spacing:-.03em;
+    margin:30px 0 8px;
+    background:linear-gradient(96deg,#ffe9cf 0%,#ffce8f 24%,#ff9d4d 52%,#ef842f 74%,#b8451f 100%);
+    background-size:220% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:0;transform:translateY(22px);
+    animation:rise .95s var(--ease) .15s both, shimmer 9s ease-in-out 1.1s infinite}
+  @keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  h1.display .em{font-style:italic;font-weight:400}
+
+  .lede{font-size:clamp(18px,2.4vw,23px);color:var(--ink-dim);max-width:620px;margin:18px auto 0;line-height:1.5;font-weight:400}
+  .lede b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .cta-row .btn{padding:14px 26px;font-size:15.5px}
+
+  /* marquee strip */
+  .strip{margin-top:64px;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+    overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  .track{display:flex;gap:0;width:max-content;animation:scroll 34s linear infinite}
+  .track:hover{animation-play-state:paused}
+  .track span{font-family:"Fraunces",serif;font-size:22px;font-style:italic;color:var(--muted);padding:18px 36px;white-space:nowrap}
+  .track span::before{content:"✦";color:var(--ember);font-style:normal;margin-right:36px;font-size:13px;vertical-align:middle}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* section frame */
+  section.block{padding:clamp(80px,12vh,140px) 0}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ember);margin-bottom:20px;display:flex;align-items:center;gap:14px}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--ember)}
+  h2{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(34px,5.2vw,62px);line-height:1.02;
+    letter-spacing:-.025em;max-width:16ch}
+  h2 .em{font-style:italic;color:var(--amber-hi);font-weight:400}
+  .section-lede{color:var(--ink-dim);max-width:50ch;margin-top:22px;font-size:clamp(17px,2vw,19px)}
+
+  /* intro editorial */
+  .intro{font-family:"Fraunces",serif;font-weight:300;font-size:clamp(26px,4.2vw,46px);line-height:1.24;
+    letter-spacing:-.02em;max-width:20ch;color:var(--ink)}
+  .intro .hl{color:transparent;background:linear-gradient(100deg,#ffce8f,#ff9d4d,#ef842f);
+    -webkit-background-clip:text;background-clip:text;font-style:italic}
+  .intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+  .intro-note{color:var(--muted);font-size:16px;border-left:1px solid var(--line);padding-left:24px}
+
+  /* capability cards */
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:54px}
+  .card{position:relative;border:1px solid var(--line);border-radius:18px;padding:34px 32px 36px;
+    background:linear-gradient(180deg,var(--surface),rgba(22,17,13,.4));overflow:hidden;
+    transition:transform .4s var(--ease),border-color .4s,background .4s}
+  .card::before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;
+    background:linear-gradient(140deg,rgba(255,157,77,.5),transparent 40%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s}
+  .card:hover{transform:translateY(-6px);background:linear-gradient(180deg,var(--surface-2),rgba(30,24,19,.5))}
+  .card:hover::before{opacity:1}
+  .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:22px;
+    background:radial-gradient(120% 120% at 30% 20%, rgba(255,157,77,.28), rgba(255,157,77,.05));
+    border:1px solid rgba(255,157,77,.22)}
+  .ic svg{width:23px;height:23px;stroke:var(--amber-hi);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .card h3{font-family:"Fraunces",serif;font-weight:500;font-size:24px;letter-spacing:-.02em;margin-bottom:10px}
+  .card p{color:var(--muted);font-size:15.5px;line-height:1.62}
+  .card .tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;color:var(--ember);
+    text-transform:uppercase;position:absolute;top:30px;right:30px;opacity:.7}
+
+  /* spec readout */
+  .spec{border:1px solid var(--line);border-radius:18px;background:
+    linear-gradient(180deg,rgba(20,15,11,.9),rgba(11,10,9,.9));overflow:hidden}
+  .spec-bar{display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line-soft);
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+  .spec-bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .spec-bar i:nth-child(1){background:#e8742e}.spec-bar i:nth-child(2){background:#f5b860}.spec-bar i:nth-child(3){background:#6b6157}
+  .spec-bar span{margin-left:10px}
+  .spec-body{font-family:"JetBrains Mono",monospace;font-size:14px;padding:8px 0}
+  .row{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:15px 26px;border-bottom:1px solid var(--line-soft)}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--muted);letter-spacing:.02em}
+  .row .v{color:var(--ink)}
+  .row .v .hot{color:var(--amber)}
+  .badge-ok{display:inline-flex;align-items:center;gap:7px;color:#bfe6a6}
+  .badge-ok .dot{background:#9fe07a;box-shadow:0 0 0 0 rgba(159,224,122,.5)}
+
+  /* whats new */
+  .new-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);
+    border:1px solid var(--line-soft);border-radius:18px;overflow:hidden;margin-top:50px}
+  .new{background:var(--bg-2);padding:32px 28px;transition:background .35s}
+  .new:hover{background:var(--surface)}
+  .new .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ember);letter-spacing:.1em}
+  .new h4{font-family:"Fraunces",serif;font-weight:500;font-size:21px;margin:14px 0 8px;letter-spacing:-.01em}
+  .new p{color:var(--muted);font-size:15px}
+
+  /* big cta */
+  .finale{text-align:center;padding:clamp(90px,16vh,170px) 0}
+  .finale h2{font-size:clamp(40px,7vw,86px);margin:0 auto;max-width:14ch;font-weight:400}
+  .finale .em{font-style:italic}
+  .finale .sub{color:var(--ink-dim);margin:22px auto 36px;max-width:46ch}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:64px 0 50px;position:relative;z-index:3}
+  .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px}
+  .foot-brand p{color:var(--muted);font-size:14.5px;max-width:30ch;margin-top:16px}
+  .foot-col h5{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:16px;font-weight:600}
+  .foot-col a{display:block;color:var(--muted);text-decoration:none;font-size:14.5px;padding:5px 0;transition:color .2s}
+  .foot-col a:hover{color:var(--amber)}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+    margin-top:54px;padding-top:26px;border-top:1px solid var(--line-soft);
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+  .disclaimer{max-width:60ch;line-height:1.5}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(28px);filter:blur(6px);
+    transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease)}
+  .reveal.in{opacity:1;transform:none;filter:none}
+
+  /* staggered hero load */
+  .h-anim{opacity:0;transform:translateY(22px);animation:rise .95s var(--ease) forwards}
+  .d1{animation-delay:.08s}.d2{animation-delay:.2s}.d3{animation-delay:.34s}.d4{animation-delay:.5s}.d5{animation-delay:.66s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  @media (max-width:860px){
+    .nav-links{display:none}
+    .intro-grid{grid-template-columns:1fr;gap:30px}
+    .cards{grid-template-columns:1fr}
+    .new-grid{grid-template-columns:1fr}
+    .row{grid-template-columns:130px 1fr;gap:12px;font-size:12.5px}
+    .foot-top{grid-template-columns:1fr 1fr}
+    .foot-brand{grid-column:1/-1}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none;filter:none}
+    .h-anim{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+  <div class="field" aria-hidden="true">
+    <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+  </div>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor-glow" id="glow" aria-hidden="true"></div>
+
+  <header>
+    <div class="wrap nav">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M20 2 L25 15 L38 20 L25 25 L20 38 L15 25 L2 20 L15 15 Z" fill="url(#g)"/>
+          <defs><linearGradient id="g" x1="2" y1="2" x2="38" y2="38">
+            <stop stop-color="#ffce8f"/><stop offset="1" stop-color="#e8742e"/>
+          </linearGradient></defs>
+        </svg>
+        Anthropic
+      </div>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#caps">Capabilities</a>
+        <a href="#model">Model</a>
+        <a href="#new">What's new</a>
+        <a href="#build">Docs</a>
+      </nav>
+      <a class="btn btn-primary" href="#build">Start building <span class="arr">→</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <span class="pill h-anim d1"><span class="dot"></span> Now available · claude-opus-4-8</span>
+      <h1 class="display">Opus <span class="em">4.8</span></h1>
+      <p class="lede h-anim d3">Our most capable model yet — <b>frontier reasoning</b>, agentic fluency, and a kind of craft you can feel in every response.</p>
+      <div class="cta-row h-anim d4">
+        <a class="btn btn-primary" href="#build">Start building <span class="arr">→</span></a>
+        <a class="btn btn-ghost" href="#model">Read the model card</a>
+      </div>
+    </section>
+
+    <div class="strip h-anim d5">
+      <div class="track" aria-hidden="true">
+        <span>Frontier reasoning</span><span>Agentic by design</span><span>Built for code</span><span>Sees &amp; reads</span><span>Long-horizon focus</span><span>Aligned by default</span>
+        <span>Frontier reasoning</span><span>Agentic by design</span><span>Built for code</span><span>Sees &amp; reads</span><span>Long-horizon focus</span><span>Aligned by default</span>
+      </div>
+    </div>
+
+    <section class="block wrap">
+      <div class="intro-grid">
+        <p class="intro reveal">A step change in <span class="hl">depth</span> — reasoning that holds its line across the longest, hardest problems.</p>
+        <p class="intro-note reveal">Opus 4.8 was built for the work that doesn't fit in a single prompt: multi-step agents, sprawling codebases, and decisions where getting it <em>almost</em> right isn't enough. It plans, it stays on task, and it knows when to slow down.</p>
+      </div>
+    </section>
+
+    <section class="block wrap" id="caps">
+      <div class="eyebrow reveal">Capabilities</div>
+      <h2 class="reveal">Range, with <span class="em">intent.</span></h2>
+      <div class="cards">
+        <article class="card reveal">
+          <span class="tag">01</span>
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 0-4 4 4 4 0 0 0 0 8 4 4 0 0 0 8 0 4 4 0 0 0 0-8 4 4 0 0 0-4-4Z"/><path d="M12 7v12"/></svg></div>
+          <h3>Reasoning that holds</h3>
+          <p>Sustained, multi-step thinking that keeps the thread across long, ambiguous problems — and surfaces its assumptions instead of hiding them.</p>
+        </article>
+        <article class="card reveal">
+          <span class="tag">02</span>
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="m8 6-6 6 6 6"/><path d="m16 6 6 6-6 6"/><path d="m13 4-2 16"/></svg></div>
+          <h3>Agentic coding</h3>
+          <p>Reads a whole repository, plans a change, runs the tools, and verifies the result — staying coherent across hundreds of steps without losing the plot.</p>
+        </article>
+        <article class="card reveal">
+          <span class="tag">03</span>
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Sees &amp; reads</h3>
+          <p>Native multimodal understanding — diagrams, screenshots, dense documents and charts read in context, not as an afterthought.</p>
+        </article>
+        <article class="card reveal">
+          <span class="tag">04</span>
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>Aligned by design</h3>
+          <p>Trained to be helpful, honest, and careful — clearer refusals, fewer false ones, and judgment that scales with the stakes of the task.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="block wrap" id="model">
+      <div class="eyebrow reveal">The model</div>
+      <h2 class="reveal" style="margin-bottom:42px">Specs, <span class="em">in plain text.</span></h2>
+      <div class="spec reveal">
+        <div class="spec-bar"><i></i><i></i><i></i><span>model · spec sheet</span></div>
+        <div class="spec-body">
+          <div class="row"><div class="k">model_id</div><div class="v"><span class="hot">claude-opus-4-8</span></div></div>
+          <div class="row"><div class="k">family</div><div class="v">Claude 4.x · Opus tier</div></div>
+          <div class="row"><div class="k">modalities</div><div class="v">text · vision</div></div>
+          <div class="row"><div class="k">strengths</div><div class="v">reasoning · agentic coding · long-horizon tasks</div></div>
+          <div class="row"><div class="k">interfaces</div><div class="v">API · Claude Code · desktop &amp; web apps</div></div>
+          <div class="row"><div class="k">status</div><div class="v"><span class="badge-ok"><span class="dot"></span> available</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block wrap" id="new">
+      <div class="eyebrow reveal">What's new in 4.8</div>
+      <h2 class="reveal">Sharper where it <span class="em">counts.</span></h2>
+      <div class="new-grid">
+        <div class="new reveal"><div class="n">→ 01</div><h4>Steadier long runs</h4><p>Holds context and goals across far longer agent sessions before drifting.</p></div>
+        <div class="new reveal"><div class="n">→ 02</div><h4>Better taste in code</h4><p>Edits that fit the codebase — proportionate changes, fewer needless rewrites.</p></div>
+        <div class="new reveal"><div class="n">→ 03</div><h4>Calmer judgment</h4><p>Knows when to ask, when to act, and when a problem deserves a slower answer.</p></div>
+        <div class="new reveal"><div class="n">→ 04</div><h4>Cleaner refusals</h4><p>More precise boundaries with fewer over-cautious false positives.</p></div>
+        <div class="new reveal"><div class="n">→ 05</div><h4>Tighter tool use</h4><p>Parallelizes independent calls and recovers gracefully when a step fails.</p></div>
+        <div class="new reveal"><div class="n">→ 06</div><h4>Truer to the brief</h4><p>Matches the scope you asked for instead of gold-plating the response.</p></div>
+      </div>
+    </section>
+
+    <section class="finale wrap" id="build">
+      <h2 class="reveal">Build something <span class="em">considered.</span></h2>
+      <p class="sub reveal">Point Opus 4.8 at your hardest problem and see how far a single, careful model can take it.</p>
+      <div class="cta-row reveal">
+        <a class="btn btn-primary" href="#">Start building <span class="arr">→</span></a>
+        <a class="btn btn-ghost" href="#caps">Explore capabilities</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <div class="brand"><svg class="mark" viewBox="0 0 40 40" fill="none"><path d="M20 2 L25 15 L38 20 L25 25 L20 38 L15 25 L2 20 L15 15 Z" fill="url(#g2)"/><defs><linearGradient id="g2" x1="2" y1="2" x2="38" y2="38"><stop stop-color="#ffce8f"/><stop offset="1" stop-color="#e8742e"/></linearGradient></defs></svg>Anthropic</div>
+          <p>Frontier intelligence, built to be helpful, honest, and safe.</p>
+        </div>
+        <div class="foot-col"><h5>Model</h5><a href="#caps">Capabilities</a><a href="#model">Spec sheet</a><a href="#new">What's new</a></div>
+        <div class="foot-col"><h5>Build</h5><a href="#build">Get started</a><a href="#">API reference</a><a href="#">Claude Code</a></div>
+        <div class="foot-col"><h5>Company</h5><a href="#">Research</a><a href="#">Safety</a><a href="#">Careers</a></div>
+      </div>
+      <div class="foot-bottom">
+        <span class="disclaimer">Unofficial concept page — a design showcase, not affiliated with or endorsed by Anthropic. Copy is illustrative.</span>
+        <span>© 2026 · made with Claude Code</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // cursor glow
+    (function(){
+      var g=document.getElementById('glow'), shown=false;
+      if(window.matchMedia('(pointer:fine)').matches){
+        window.addEventListener('pointermove',function(e){
+          g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';
+          if(!shown){g.style.opacity='1';shown=true;}
+        },{passive:true});
+        document.addEventListener('mouseleave',function(){g.style.opacity='0';shown=false;});
+      }
+    })();
+    // scroll reveal
+    (function(){
+      var io=new IntersectionObserver(function(es){
+        es.forEach(function(en){ if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);} });
+      },{threshold:.16,rootMargin:'0px 0px -8% 0px'});
+      document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+    })();
+  </script>
+</body>
+</html>

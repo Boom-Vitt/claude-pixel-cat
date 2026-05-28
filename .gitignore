@@ -1,0 +1,24 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime logs
+*.log
+
+# Backups
+*.bak
+
+# Auto-generated machine-specific launcher (created by install_autostart.py)
+run_pixel_cat.sh
+
+# Editor / local tooling config
+.claude/
+
+# macOS junk
+.DS_Store
