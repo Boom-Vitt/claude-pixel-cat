@@ -143,6 +143,44 @@ def disable_window_shadow_macos(widget):
         pass
 
 
+def keep_on_all_spaces_macos(widget):
+    """Keep the cat floating above other apps on EVERY Space and over
+    full-screen apps, so it stays visible no matter which app you switch to.
+
+    Sets the NSWindow collectionBehavior via the Objective-C runtime. Without
+    this, switching to another Space (or a full-screen app) leaves the cat
+    behind. Must be called after the window is shown (so winId() is a real
+    NSView).
+    """
+    if sys.platform != "darwin":
+        return
+    try:
+        import ctypes
+        import ctypes.util
+
+        objc = ctypes.cdll.LoadLibrary(ctypes.util.find_library("objc"))
+        objc.sel_registerName.restype = ctypes.c_void_p
+        objc.sel_registerName.argtypes = [ctypes.c_char_p]
+
+        objc.objc_msgSend.restype = ctypes.c_void_p
+        objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+        ns_view = ctypes.c_void_p(int(widget.winId()))
+        ns_window = objc.objc_msgSend(ns_view, objc.sel_registerName(b"window"))
+        if not ns_window:
+            return
+
+        # NSWindowCollectionBehaviorCanJoinAllSpaces     (1 << 0) = 1
+        # NSWindowCollectionBehaviorFullScreenAuxiliary  (1 << 8) = 256
+        behavior = (1 << 0) | (1 << 8)
+        objc.objc_msgSend.restype = None
+        objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong]
+        objc.objc_msgSend(
+            ns_window, objc.sel_registerName(b"setCollectionBehavior:"), behavior
+        )
+    except Exception:
+        pass
+
+
 def make_white_transparent(img: Image.Image) -> Image.Image:
     """Make near-white pixels (r, g, b all >= 245) fully transparent.
 
@@ -274,9 +312,12 @@ class PixelCatWindow(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
 
-        if HIDE_DOCK_ICON and hasattr(Qt.WidgetAttribute, "WA_MacAlwaysShowToolWindow"):
-            # A Tool window hides when the app is inactive; an Accessory (no-Dock)
-            # app is never active, so force the tool window to stay visible.
+        # A Qt::Tool window on macOS auto-hides whenever the app is NOT the
+        # active app (e.g. the moment you click into another app). Force it to
+        # stay shown so the cat keeps walking on top of whatever you're doing,
+        # until you quit it from the menu bar. Needed both for the normal case
+        # and the Accessory (no-Dock) case, where the app is never "active".
+        if sys.platform == "darwin" and hasattr(Qt.WidgetAttribute, "WA_MacAlwaysShowToolWindow"):
             self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow, True)
 
         self.setWindowTitle(APP_NAME)
@@ -520,6 +561,11 @@ class PixelCatApp:
         # Re-applied via the event loop too, since the shadow can be recreated.
         disable_window_shadow_macos(self.window)
         QTimer.singleShot(0, lambda: disable_window_shadow_macos(self.window))
+
+        # Keep the cat visible above every app / Space / full-screen window, so
+        # it stays on screen even when you click into another app.
+        keep_on_all_spaces_macos(self.window)
+        QTimer.singleShot(0, lambda: keep_on_all_spaces_macos(self.window))
 
         if HIDE_DOCK_ICON:
             # Become a background accessory app (no Dock icon). Scheduled via the
